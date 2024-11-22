@@ -40,7 +40,7 @@ jobs:
 
     # Step 4: Restore dependencies 
     - name: Restore solution dependencies
-      run: dotnet restore YourSolution.sln
+      run: dotnet restore ArxRiver.SourceCodeGenerator.sln
 
     # Step 5: Run NUKE Build
     - name: Run NUKE Build for ${{ matrix.framework }}
