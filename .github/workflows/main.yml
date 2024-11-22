@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        framework: ['net8.0'] # Test both target frameworks
+        framework: ['net9.0'] # Test both target frameworks
 
     steps:
     # Step 1: Checkout the repository
