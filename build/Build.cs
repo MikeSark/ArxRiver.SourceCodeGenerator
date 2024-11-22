@@ -57,7 +57,7 @@ public class Build : NukeBuild
         .DependsOn(MovePackages)
         .Executes(() =>
         {
-            var project = Solution.GetProject("ArxRiver.SourceGenerator.XUnitTest");
+            var project = Solution.GetProject(SourceGeneratorTestPath);
             if (null == project)
             {
                 throw new Exception("Unable to identify the test project. Build target UpdatePackageReference, threw an exception.");
@@ -78,10 +78,10 @@ public class Build : NukeBuild
         .DependsOn(BuildSourcegenerator)
         .Executes(() =>
         {
-            var files = SourceGeneratorOutPutDirectory.GlobFiles("ArxRiver.SourceGenerator*.*nupkg");
+            var files = SourceGeneratorOutPutDirectory.GlobFiles($"{PackageName}*.*nupkg");
             foreach (var file in files)
             {
-                Log.Information($"Moving file to packages folder. {file.Name} to {PackageDirectory}");
+                Log.Information($"Moving {file.Name} => {PackageDirectory}");
                 file.CopyToDirectory(PackageDirectory, ExistsPolicy.FileOverwrite);
             }
         });
