@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <OutputPath>$(SolutionDir)\Output\$(Configuration)\</OutputPath>
+    <!-- <PackageOutputPath>$(SolutionDir)PSPackages</PackageOutputPath> -->
+    <Version>1.1.199</Version>
+  </PropertyGroup>
+</Project>

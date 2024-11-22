@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArxRiver.SourceGenerators", "src\ArxRiver.SourceGenerator\ArxRiver.SourceGenerators.csproj", "{65200E86-4AA1-41B6-B26E-975B1175CB43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArxRiver.SourceGenerator.XUnitTest", "src\ArxRiver.SourceGenerator.XUnitTest\ArxRiver.SourceGenerator.XUnitTest.csproj", "{63A8E32D-9961-47B1-880A-C29305D9166E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Build", "Build\Build.csproj", "{CCF6B332-C1CD-4134-BA81-DDDC1E2B4CA5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\main.yml = .github\workflows\main.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{65200E86-4AA1-41B6-B26E-975B1175CB43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65200E86-4AA1-41B6-B26E-975B1175CB43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65200E86-4AA1-41B6-B26E-975B1175CB43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65200E86-4AA1-41B6-B26E-975B1175CB43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63A8E32D-9961-47B1-880A-C29305D9166E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63A8E32D-9961-47B1-880A-C29305D9166E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63A8E32D-9961-47B1-880A-C29305D9166E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63A8E32D-9961-47B1-880A-C29305D9166E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCF6B332-C1CD-4134-BA81-DDDC1E2B4CA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCF6B332-C1CD-4134-BA81-DDDC1E2B4CA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FA83FE5A-F77E-4B77-8284-88DB3D5ED286}
+	EndGlobalSection
+EndGlobal

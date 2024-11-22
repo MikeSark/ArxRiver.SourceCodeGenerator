@@ -1,0 +1,56 @@
+name: NUKE Build for .NET Standard 2.0 and .NET 8.0
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        framework: ['net8.0'] # Test both target frameworks
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: Setup .NET SDK
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0' # Install .NET 8 SDK (backward compatible with .NET Standard)
+
+    # Step 3: Install NUKE Global Tool
+    - name: Install NUKE Global Tool
+      shell: pwsh
+      run: dotnet tool install --global Nuke.GlobalTool
+
+    # Step 4: Add NUKE to PATH
+    - name: Add NUKE to PATH
+      shell: pwsh
+      run: echo "C:\\Users\\runneradmin\\.dotnet\\tools" >> $GITHUB_PATH
+
+
+    # Step 4: Restore dependencies 
+    - name: Restore solution dependencies
+      run: dotnet restore YourSolution.sln
+
+    # Step 5: Run NUKE Build
+    - name: Run NUKE Build for ${{ matrix.framework }}
+      shell: pwsh
+      run: nuke --target Default --framework ${{ matrix.framework }}
+
+    # Step 6 (Optional): Upload Build Artifacts
+    - name: Upload Build Artifacts
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-output-${{ matrix.framework }}
+        path: output # Adjust this to your NUKE build output directory

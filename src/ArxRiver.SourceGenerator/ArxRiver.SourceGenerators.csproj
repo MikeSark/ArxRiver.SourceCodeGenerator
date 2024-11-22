@@ -1,0 +1,75 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <RootNamespace>ArxRiver.SourceGenerator</RootNamespace>
+        <AssemblyName>ArxRiver.SourceGenerator</AssemblyName>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>Mike Sarkezians</Authors>
+        <Description>Generates methods for types based on Defined Attributes.</Description>
+        <IncludeSymbols>true</IncludeSymbols>
+        <PackageId>ArxRiver.SourceGenerator</PackageId>
+        <PackageTags>ArxRiver.SourceGenerator;SourceGenerator</PackageTags>
+        <PackageVersion>$(Version)</PackageVersion>
+        <PackageLicenseFile>License.txt</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <OutputItemType>Analyzer</OutputItemType>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+
+	<PropertyGroup>
+		<RetryResiliencyProvider>true</RetryResiliencyProvider>
+	</PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <NoWarn>1701;1702;CS8625;CS8618</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <NoWarn>1701;1702;CS8625;CS8618</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Update="README.md">
+            <Pack>true</Pack>
+            <PackagePath>README.md</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="LICENSE.txt">
+            <Pack>true</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Polly.Core" Version="8.4.2" />
+        <PackageReference Include="Polly.Extensions" Version="8.4.2" />
+        <PackageReference Include="NLog.Extensions.Logging" Version="5.3.14" />
+        <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+
+</Project>
