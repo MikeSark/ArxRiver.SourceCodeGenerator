@@ -29,6 +29,7 @@
         "BuildTestProject",
         "Clean",
         "Default",
+        "Finalize",
         "ModifyVersionNumber",
         "MovePackages",
         "RunTest",
@@ -109,10 +110,6 @@
         "Configuration": {
           "type": "string",
           "description": "Configuration to build - Default is 'Debug' (local) or 'Release' (server)"
-        },
-        "RestorePackagesPath": {
-          "type": "string",
-          "description": "Path to restore packages"
         },
         "Solution": {
           "type": "string",
