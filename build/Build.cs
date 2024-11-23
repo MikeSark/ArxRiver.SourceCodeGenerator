@@ -40,7 +40,6 @@ public class Build : NukeBuild
             Directory.Delete(SourceGeneratorOutPutDirectory, true);
             Directory.Delete(SourceGeneratorTestOutPutDirectory, true);
             Directory.Delete(PackageDirectory, true);
-            
         });
 
 
@@ -88,6 +87,8 @@ public class Build : NukeBuild
 
             DotNetRestore(s => s.SetProjectFile(Solution.GetProject(SourceGeneratorTestPath))
                               .SetProperty("RestorePackagesPath", PackageDirectory));
+
+            ShowPackageNames();
         });
 
 
@@ -111,6 +112,8 @@ public class Build : NukeBuild
             // Restore and build first project, the source generator
             DotNetRestore(s => s.SetProjectFile(Solution.GetProject(SourceGeneratorPath))
                               .SetProperty("RestorePackagesPath", PackageDirectory));
+
+            ShowPackageNames();
 
             DotNetBuild(s => s
                             .SetProjectFile(Solution.GetProject(SourceGeneratorPath))
@@ -146,15 +149,15 @@ public class Build : NukeBuild
         d => d
             .Executes(() =>
             {
-                Console.WriteLine($"Configuration: {Configuration}");
-                Console.WriteLine($"RootDirectory : {RootDirectory}");
-                Console.WriteLine($"SourceDirectory : {SourceDirectory}");
-                Console.WriteLine($"OutPutDirectory : {OutPutDirectory}");
-                Console.WriteLine($"PublishDirectory : {PublishDirectory}");
-                Console.WriteLine($"PackageDirectory : {PackageDirectory}");
-                Console.WriteLine($"SourceGeneratorPath : {SourceGeneratorPath}");
-                Console.WriteLine($"SourceGeneratorTestPath : {SourceGeneratorTestPath}");
-                Console.WriteLine($"NugetPackageFiles : {NugetPackageFiles}");
+                Log.Information($"Configuration: {Configuration}");
+                Log.Information($"RootDirectory : {RootDirectory}");
+                Log.Information($"SourceDirectory : {SourceDirectory}");
+                Log.Information($"OutPutDirectory : {OutPutDirectory}");
+                Log.Information($"PublishDirectory : {PublishDirectory}");
+                Log.Information($"PackageDirectory : {PackageDirectory}");
+                Log.Information($"SourceGeneratorPath : {SourceGeneratorPath}");
+                Log.Information($"SourceGeneratorTestPath : {SourceGeneratorTestPath}");
+                Log.Information($"NugetPackageFiles : {NugetPackageFiles}");
             });
 
 
@@ -184,6 +187,30 @@ public class Build : NukeBuild
 
                 xmlDocument.Save(buildPropFileName);
             });
+
+
+    private void ShowPackageNames()
+    {
+        if (!Directory.Exists(PackageDirectory))
+        {
+            Log.Warning($"Directory '{PackageDirectory}' does not exist.");
+            return;
+        }
+
+        var subfolders = Directory.GetDirectories(PackageDirectory);
+        if (subfolders.Length == 0)
+        {
+            Log.Information($"No subfolders found in '{PackageDirectory}'.");
+        }
+        else
+        {
+            Log.Information($"Subfolders in '{PackageDirectory}':");
+            foreach (var subfolder in subfolders)
+            {
+                Log.Information(Path.GetFileName(subfolder)); // Output only the folder name
+            }
+        }
+    }
 
 
     private string GetPackageVersionNumber()

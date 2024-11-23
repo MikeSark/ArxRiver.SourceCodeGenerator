@@ -17,19 +17,27 @@ jobs:
         framework: ['net9.0'] # Test both target frameworks
 
     steps:
-    # Step 1: Checkout the repository
+    # Checkout the repository
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # Step 2: Setup .NET SDK
-    - name: Setup .NET
+    # Install .NET SDKs
+    - name: Setup .NET SDKs
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '9.0' # Install .NET 8 SDK (backward compatible with .NET Standard)
+        dotnet-version: |
+          2.1.x    # For .NET Standard 2.0 compatibility
+          9.0.x    # .NET 9.0 SDK (latest preview)
+
+    # Step 2: Setup .NET SDK
+    #- name: Setup .NET
+    #  uses: actions/setup-dotnet@v3
+    #  with:
+    #    dotnet-version: '9.0' # Install .NET 8 SDK (backward compatible with .NET Standard)
 
     # Step 4: Restore dependencies 
-    - name: Restore solution dependencies
-      run: dotnet restore src/ArxRiver.SourceGenerator/ArxRiver.SourceGenerators.csproj
+    #- name: Restore solution dependencies
+    #  run: dotnet restore src/ArxRiver.SourceGenerator/ArxRiver.SourceGenerators.csproj
 
     # Step 5: Install NUKE Global Tool
     - name: Install NUKE Global Tool
@@ -47,16 +55,16 @@ jobs:
       run: nuke --target Default --framework ${{ matrix.framework }}
 
     # Step 8 (Optional): Upload Build Artifacts
-    - name: Upload Build Artifacts
-      if: success()
-      uses: actions/upload-artifact@v3
-      with:
-        name: build-output-${{ matrix.framework }}
-        path: output # Adjust this to your NUKE build output directory
+    #- name: Upload Build Artifacts
+    #  if: success()
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: build-output-${{ matrix.framework }}
+    #    path: output # Adjust this to your NUKE build output directory
 
     # List the contents of the working directory
-    - name: List directory contents
-      run: ls -la
+    #- name: List directory contents
+    #  run: ls -la
 
     # Step 9 Publish the package to GitHub Packages
     #- name: Publish NuGet package
