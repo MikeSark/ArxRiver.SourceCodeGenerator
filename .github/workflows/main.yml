@@ -12,9 +12,9 @@ jobs:
   build:
     runs-on: windows-latest
 
-    strategy:
-      matrix:
-        framework: ['net9.0'] # Test both target frameworks
+    #strategy:
+    #  matrix:
+    #    framework: ['net9.0'] # Test both target frameworks
 
     steps:
     # Checkout the repository
