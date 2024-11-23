@@ -53,3 +53,14 @@ jobs:
       with:
         name: build-output-${{ matrix.framework }}
         path: output # Adjust this to your NUKE build output directory
+
+    # List the contents of the working directory
+    - name: List directory contents
+      run: ls -la
+
+    # Step 9 Publish the package to GitHub Packages
+    #- name: Publish NuGet package
+    #  env:
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #    SOURCE_FOLDER: ${{ github.workspace }}/src/ArxRiver.SourceGenerator/bin/Release}}
+    #  run: dotnet nuget push ./nupkg/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key $GITHUB_TOKEN

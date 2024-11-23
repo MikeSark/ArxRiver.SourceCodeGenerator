@@ -3,6 +3,6 @@
   <PropertyGroup>
     <OutputPath>$(SolutionDir)\Output\$(Configuration)\</OutputPath>
     <!-- <PackageOutputPath>$(SolutionDir)PSPackages</PackageOutputPath> -->
-    <Version>1.1.201</Version>
+    <Version>1.1.202</Version>
   </PropertyGroup>
 </Project>

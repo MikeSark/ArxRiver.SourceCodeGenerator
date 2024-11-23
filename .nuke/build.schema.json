@@ -110,6 +110,10 @@
           "type": "string",
           "description": "Configuration to build - Default is 'Debug' (local) or 'Release' (server)"
         },
+        "RestorePackagesPath": {
+          "type": "string",
+          "description": "Path to restore packages"
+        },
         "Solution": {
           "type": "string",
           "description": "Path to a solution file that is automatically loaded"

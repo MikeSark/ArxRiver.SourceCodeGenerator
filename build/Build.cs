@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Nuke.Common;
@@ -15,6 +16,7 @@ public class Build : NukeBuild
 
     [Solution] readonly Solution Solution;
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")] readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
+    [Parameter("Path to restore packages")] readonly AbsolutePath RestorePackagesPath = RootDirectory / "custom-packages";
 
     private readonly string PackageName = "ArxRiver.SourceGenerator";
     private readonly string SourceGeneratorPath = "ArxRiver.SourceGenerators";
@@ -28,7 +30,20 @@ public class Build : NukeBuild
     AbsolutePath PackageDirectory => RootDirectory / "PSPackages";
     AbsolutePath NugetPackageFiles => SourceGeneratorOutPutDirectory / $"{PackageName}*.*nupkg";
 
-    Target Default => d => d.DependsOn(RunTest);
+    Target Default => d => d.DependsOn(Finalize);
+
+
+    Target Finalize => d => d
+        .DependsOn(RunTest)
+        .Executes(() =>
+        {
+            // cleanup the temporary directories
+            Directory.Delete(SourceGeneratorOutPutDirectory, true);
+            Directory.Delete(SourceGeneratorTestOutPutDirectory, true);
+            Directory.Delete(RestorePackagesPath, true);
+            
+        });
+
 
     Target RunTest => d => d
         .DependsOn(BuildTestProject)
@@ -71,6 +86,9 @@ public class Build : NukeBuild
             }
 
             DotNet($"add {project.Path} package {PackageName}  -v {packageVersion}  -s {PackageDirectory}");
+
+            DotNetRestore(s => s.SetProjectFile(Solution.GetProject(SourceGeneratorTestPath))
+                              .SetProperty("RestorePackagesPath", RestorePackagesPath));
         });
 
 
@@ -92,7 +110,8 @@ public class Build : NukeBuild
         .Executes(() =>
         {
             // Restore and build first project, the source generator
-            DotNetRestore(s => s.SetProjectFile(Solution.GetProject(SourceGeneratorPath)));
+            DotNetRestore(s => s.SetProjectFile(Solution.GetProject(SourceGeneratorPath))
+                              .SetProperty("RestorePackagesPath", RestorePackagesPath));
 
             DotNetBuild(s => s
                             .SetProjectFile(Solution.GetProject(SourceGeneratorPath))
