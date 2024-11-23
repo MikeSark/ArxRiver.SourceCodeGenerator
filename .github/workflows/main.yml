@@ -25,29 +25,28 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0' # Install .NET 8 SDK (backward compatible with .NET Standard)
+        dotnet-version: '9.0' # Install .NET 8 SDK (backward compatible with .NET Standard)
 
-    # Step 3: Install NUKE Global Tool
+    # Step 4: Restore dependencies 
+    - name: Restore solution dependencies
+      run: dotnet restore ArxRiver.SourceGenerators.csproj
+
+    # Step 5: Install NUKE Global Tool
     - name: Install NUKE Global Tool
       shell: pwsh
       run: dotnet tool install --global Nuke.GlobalTool
 
-    # Step 4: Add NUKE to PATH
+    # Step 6: Add NUKE to PATH
     - name: Add NUKE to PATH
       shell: pwsh
-      run: echo "C:\\Users\\runneradmin\\.dotnet\\tools" >> $GITHUB_PATH
+      run: echo "C:\\Users\\runneradmin\\.dotnet\\tools" >> $GITHUB_PATH    
 
-
-    # Step 4: Restore dependencies 
-    #- name: Restore solution dependencies
-    #  run: dotnet restore ArxRiver.SourceGenerators.csproj
-
-    # Step 5: Run NUKE Build
+    # Step 7: Run NUKE Build
     - name: Run NUKE Build for ${{ matrix.framework }}
       shell: pwsh
       run: nuke --target Default --framework ${{ matrix.framework }}
 
-    # Step 6 (Optional): Upload Build Artifacts
+    # Step 8 (Optional): Upload Build Artifacts
     - name: Upload Build Artifacts
       if: success()
       uses: actions/upload-artifact@v3
