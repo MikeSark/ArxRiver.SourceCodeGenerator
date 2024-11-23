@@ -31,7 +31,6 @@
         "Default",
         "Finalize",
         "ModifyVersionNumber",
-        "MovePackages",
         "RunTest",
         "UpdatePackageReference"
       ]

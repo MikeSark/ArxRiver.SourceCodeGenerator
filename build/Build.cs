@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -24,10 +25,13 @@ public class Build : NukeBuild
     AbsolutePath SourceDirectory => RootDirectory / "Src";
     AbsolutePath OutPutDirectory => RootDirectory / "Output";
     AbsolutePath PublishDirectory => RootDirectory / "Deploy";
-    AbsolutePath SourceGeneratorOutPutDirectory => OutPutDirectory / "Sourcegenerator";
-    AbsolutePath SourceGeneratorTestOutPutDirectory => OutPutDirectory / "SourcegeneratorUniTest";
     AbsolutePath PackageDirectory => RootDirectory / "PSPackages";
-    AbsolutePath NugetPackageFiles => SourceGeneratorOutPutDirectory / $"{PackageName}*.*nupkg";
+    AbsolutePath SourceGeneratorBinDirectory => OutPutDirectory / Configuration;
+
+    //AbsolutePath SourceGeneratorOutPutDirectory => OutPutDirectory / "Sourcegenerator";
+    AbsolutePath SourceGeneratorTestOutPutDirectory => OutPutDirectory / "SourcegeneratorUniTest";
+
+    //AbsolutePath NugetPackageFiles => SourceGeneratorOutPutDirectory / $"{PackageName}*.*nupkg";
 
     Target Default => d => d.DependsOn(Finalize);
 
@@ -36,8 +40,9 @@ public class Build : NukeBuild
         .DependsOn(RunTest)
         .Executes(() =>
         {
+            Log.Information("Target: Finalize");
+
             // cleanup the temporary directories
-            Directory.Delete(SourceGeneratorOutPutDirectory, true);
             Directory.Delete(SourceGeneratorTestOutPutDirectory, true);
             Directory.Delete(PackageDirectory, true);
         });
@@ -47,6 +52,8 @@ public class Build : NukeBuild
         .DependsOn(BuildTestProject)
         .Executes(() =>
         {
+            Log.Information("Target: RunTest");
+
             DotNetTest(s => s.SetProjectFile(Solution.GetProject(SourceGeneratorTestPath))
                            .SetConfiguration(Configuration)
                            .SetResultsDirectory(RootDirectory / "test-results")
@@ -59,6 +66,24 @@ public class Build : NukeBuild
         .DependsOn(UpdatePackageReference)
         .Executes(() =>
         {
+            Log.Information("Target: BuildTestProject");
+
+            var project = Solution.GetProject(SourceGeneratorTestPath);
+            if (null == project)
+            {
+                throw new Exception("Unable to identify the test project. Build target UpdatePackageReference, threw an exception.");
+            }
+
+            var sources = GetNuGetSourcesFromDotNet();
+            sources.Add(PackageDirectory);
+
+            DotNetRestore(s => s.SetProjectFile(project.Path)
+                              .AddSources(sources)
+                              .SetProperty("RestorePackagesPath", PackageDirectory));
+
+            ShowPackageNames();
+
+
             DotNetBuild(s => s
                             .SetProjectFile(Solution.GetProject(SourceGeneratorTestPath))
                             .SetConfiguration(Configuration)
@@ -67,9 +92,11 @@ public class Build : NukeBuild
 
 
     Target UpdatePackageReference => d => d
-        .DependsOn(MovePackages)
+        .DependsOn(BuildSourcegenerator)
         .Executes(() =>
         {
+            Log.Information("Target: UpdatePackageReference");
+
             var project = Solution.GetProject(SourceGeneratorTestPath);
             if (null == project)
             {
@@ -77,40 +104,31 @@ public class Build : NukeBuild
             }
 
             var packageVersion = GetPackageVersionNumber();
-
             if (string.IsNullOrEmpty(packageVersion))
             {
                 throw new Exception("package Version number not found. Build target UpdatePackageReference, threw an exception.");
             }
 
             DotNet($"add {project.Path} package {PackageName}  -v {packageVersion}  -s {PackageDirectory}");
-
-            DotNetRestore(s => s.SetProjectFile(Solution.GetProject(SourceGeneratorTestPath))
-                              .SetProperty("RestorePackagesPath", PackageDirectory));
-
-            ShowPackageNames();
         });
-
-
-    Target MovePackages => d => d
-        .DependsOn(BuildSourcegenerator)
-        .Executes(() =>
-        {
-            var files = SourceGeneratorOutPutDirectory.GlobFiles($"{PackageName}*.*nupkg");
-            foreach (var file in files)
-            {
-                Log.Information($"Moving {file.Name} => {PackageDirectory}");
-                file.CopyToDirectory(PackageDirectory, ExistsPolicy.FileOverwrite);
-            }
-        });
-
 
     Target BuildSourcegenerator => d => d
         .DependsOn(Clean)
         .Executes(() =>
         {
+            Log.Information("Target: BuildSourcegenerator");
+
+            var project = Solution.GetProject(SourceGeneratorPath);
+            if (null == project)
+            {
+                throw new Exception("Unable to identify the source generator project. Build target UpdatePackageReference, threw an exception.");
+            }
+
+            var targetFramework = GetTargetFrameworkFromCsproj(project.Path);
+            var outputDirectory = SourceGeneratorBinDirectory / targetFramework;
+
             // Restore and build first project, the source generator
-            DotNetRestore(s => s.SetProjectFile(Solution.GetProject(SourceGeneratorPath))
+            DotNetRestore(s => s.SetProjectFile(project.Path)
                               .SetProperty("RestorePackagesPath", PackageDirectory));
 
             ShowPackageNames();
@@ -118,7 +136,14 @@ public class Build : NukeBuild
             DotNetBuild(s => s
                             .SetProjectFile(Solution.GetProject(SourceGeneratorPath))
                             .SetConfiguration(Configuration)
-                            .SetOutputDirectory(SourceGeneratorOutPutDirectory));
+                            .SetOutputDirectory(outputDirectory));
+
+
+            DotNetPack(s => s
+                           .SetProject(Solution) // Replace 'Solution' with a specific project file if needed
+                           .SetConfiguration(Configuration)
+                           .SetOutputDirectory(PackageDirectory)
+                           .EnableNoRestore()); // Skip restore if already done
         });
 
 
@@ -128,11 +153,13 @@ public class Build : NukeBuild
             .DependsOn(ModifyVersionNumber)
             .Executes(() =>
             {
+                Log.Information("Target: Clean");
+
                 Log.Information("Clearing *.bin  and *.obj folders");
                 SourceDirectory.GlobDirectories("**/bin", "**/obj").ForEach(d => d.DeleteDirectory());
 
-                Log.Information($"Deleting {SourceGeneratorOutPutDirectory}");
-                SourceGeneratorOutPutDirectory.DeleteDirectory();
+                // Log.Information($"Deleting {SourceGeneratorOutPutDirectory}");
+                // SourceGeneratorOutPutDirectory.DeleteDirectory();
 
                 Log.Information($"Deleting {SourceGeneratorTestOutPutDirectory}");
                 SourceGeneratorTestOutPutDirectory.DeleteDirectory();
@@ -149,6 +176,8 @@ public class Build : NukeBuild
         d => d
             .Executes(() =>
             {
+                Log.Information("Target: Announce");
+
                 Log.Information($"Configuration: {Configuration}");
                 Log.Information($"RootDirectory : {RootDirectory}");
                 Log.Information($"SourceDirectory : {SourceDirectory}");
@@ -157,7 +186,8 @@ public class Build : NukeBuild
                 Log.Information($"PackageDirectory : {PackageDirectory}");
                 Log.Information($"SourceGeneratorPath : {SourceGeneratorPath}");
                 Log.Information($"SourceGeneratorTestPath : {SourceGeneratorTestPath}");
-                Log.Information($"NugetPackageFiles : {NugetPackageFiles}");
+                //Log.Information($"NugetPackageFiles : {NugetPackageFiles}");
+                Log.Information($"SourceGeneratorBinDirectory : {SourceGeneratorBinDirectory}");
             });
 
 
@@ -165,6 +195,7 @@ public class Build : NukeBuild
         d => d
             .Executes(() =>
             {
+                Log.Information("Target: ModifyVersionNumber");
                 var buildPropFileName = GetBuildPropVersionXmlElement(out var xmlDocument, out var versionNode);
                 if (versionNode != null)
                 {
@@ -188,6 +219,33 @@ public class Build : NukeBuild
                 xmlDocument.Save(buildPropFileName);
             });
 
+    private List<string> GetNuGetSourcesFromDotNet()
+    {
+        var output = DotNetTasks.DotNet("nuget list source", logOutput: false);
+        var lines = output.Select(x => x.Text).ToList();
+
+        Log.Debug(string.Join(", ", lines));
+        return lines
+            .Where(line => line.StartsWith("   ") && line.Contains("http"))
+            .Select(line => line.Trim())
+            .ToList();
+    }
+
+
+    private string GetTargetFrameworkFromCsproj(AbsolutePath projectFilePath)
+    {
+        if (!File.Exists(projectFilePath))
+        {
+            Log.Warning($"The file '{projectFilePath}' does not exist.");
+            return null;
+        }
+
+        var document = XDocument.Load(projectFilePath);
+        return document
+            .Descendants("TargetFramework")
+            .FirstOrDefault()
+            ?.Value;
+    }
 
     private void ShowPackageNames()
     {
