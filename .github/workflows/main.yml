@@ -26,7 +26,7 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: |
-          2.1.x    # For .NET Standard 2.0 compatibility
+          2.0.x    # For .NET Standard 2.0 compatibility
           9.0.x    # .NET 9.0 SDK (latest preview)
 
     # Step 2: Setup .NET SDK
